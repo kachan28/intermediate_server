@@ -1,0 +1,16 @@
+syntax = "proto3";
+package models;
+
+import "patch/go.proto";
+
+option go_package = "./";
+
+message File {
+    string title = 1 [(go.field).tags = 'validate:"required,gt=0"'];
+    bytes content = 2 [(go.field).tags = 'validate:"required,gt=0"'];
+}
+
+message BackupCreate {
+    string id = 1 [(go.field).tags = 'validate:"required"'];
+    File file = 2 [(go.field).tags = 'validate:"required"'];
+}
