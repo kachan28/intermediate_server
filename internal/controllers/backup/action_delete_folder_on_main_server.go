@@ -15,7 +15,7 @@ func (c *Controller) DeleteFolderOnMainServer(ctx echo.Context) error {
 	}
 
 	folder := struct {
-		FolderName string `json:"folder_name" validate:"required,gt=0"`
+		FolderName string `json:"id" validate:"required,gt=0"`
 	}{}
 	err = jsoniter.Unmarshal(bodyBytes, &folder)
 	if err != nil {
