@@ -1,24 +1,27 @@
 package repository
 
 import (
-	"context"
 	"fmt"
 	pb "intermediate_server/internal/models/pb"
 )
 
 const (
 	backupsTable = "backups"
-
-	saveQuery = `
-		insert into %s values(NULL, ?, ?, ?)
-	`
-	getLastInsertIDQuery = `select id from backups order by id desc limit 1;`
-	deleteQuery          = ``
 )
 
-func (r *Repository) Create(ctx context.Context, cancel context.CancelFunc, backup *pb.BackupCreate) error {
-	defer cancel()
+var (
+	saveQuery = fmt.Sprintf(`
+		insert into %s values(NULL, ?, ?, ?);
+	`, backupsTable)
+	getLastInsertIDQuery = fmt.Sprintf(`
+		select id from %s order by id desc limit 1;
+	`, backupsTable)
+	deleteQuery = fmt.Sprintf(`
+		delete from %s where id=?;
+	`, backupsTable)
+)
 
+func (r *Repository) Create(backup *pb.BackupCreate) error {
 	r.openDb()
 	defer r.closeDb()
 
@@ -27,13 +30,13 @@ func (r *Repository) Create(ctx context.Context, cancel context.CancelFunc, back
 		return err
 	}
 
-	stmt, err := tx.Prepare(fmt.Sprintf(saveQuery, backupsTable))
+	stmt, err := tx.Prepare(saveQuery)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, backup.Id, backup.File.Title, backup.File.Content)
+	_, err = stmt.Exec(backup.Id, backup.File.Title, backup.File.Content)
 	if err != nil {
 		return err
 	}
@@ -41,12 +44,12 @@ func (r *Repository) Create(ctx context.Context, cancel context.CancelFunc, back
 	return tx.Commit()
 }
 
-func (r *Repository) GetLastInsertedRowID(ctx context.Context) (int64, error) {
+func (r *Repository) GetLastInsertedRowID() (int64, error) {
 	r.openDb()
 	defer r.closeDb()
 
 	var lastInsertID int64
-	err := r.db.QueryRowContext(ctx, getLastInsertIDQuery).Scan(&lastInsertID)
+	err := r.db.QueryRow(getLastInsertIDQuery).Scan(&lastInsertID)
 	if err != nil {
 		return 0, err
 	}
@@ -54,8 +57,9 @@ func (r *Repository) GetLastInsertedRowID(ctx context.Context) (int64, error) {
 	return lastInsertID, nil
 }
 
-func (r *Repository) Delete(ctx context.Context) error {
+func (r *Repository) Delete(backupID int64) error {
 	r.openDb()
 	defer r.closeDb()
-
+	_, err := r.db.Query(deleteQuery)
+	return err
 }

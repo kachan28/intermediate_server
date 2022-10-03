@@ -1,8 +1,5 @@
 package backup
 
-import "context"
-
-func (s *Service) Delete(ctx context.Context, backupID int64) error {
-
-	return nil
+func (s *Service) Delete(backupID int64) error {
+	return s.repository.Delete(backupID)
 }

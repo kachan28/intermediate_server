@@ -1,13 +1,10 @@
 package backup
 
 import (
-	"context"
 	pb "intermediate_server/internal/models/pb"
 	"io/ioutil"
 	"net/http"
-	"time"
 
-	"github.com/hashicorp/go.net/context"
 	"github.com/labstack/echo/v4"
 	"google.golang.org/protobuf/proto"
 )
@@ -29,9 +26,7 @@ func (c *Controller) Create(ctx echo.Context) error {
 		return ctx.String(http.StatusBadRequest, err.Error())
 	}
 
-	dbContext, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*5))
-
-	err = c.service.Create(dbContext, cancel, &b)
+	err = c.service.Create(&b)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, err.Error())
 	}
@@ -41,12 +36,12 @@ func (c *Controller) Create(ctx echo.Context) error {
 		return ctx.String(http.StatusInternalServerError, err.Error())
 	}
 
-	backupID, err := c.service.GetLastID(dbContext)
+	backupID, err := c.service.GetLastID()
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, err.Error())
 	}
 
-	err = c.service.Delete(dbContext, backupID)
+	err = c.service.Delete(backupID)
 
 	return ctx.NoContent(http.StatusCreated)
 }
