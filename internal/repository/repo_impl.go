@@ -60,6 +60,18 @@ func (r *Repository) GetLastInsertedRowID() (int64, error) {
 func (r *Repository) Delete(backupID int64) error {
 	r.openDb()
 	defer r.closeDb()
-	_, err := r.db.Query(deleteQuery)
+	res, err := r.db.Exec(deleteQuery, backupID)
+	if err != nil {
+		return err
+	}
+
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return fmt.Errorf("row has not been deleted, check query or args in server code")
+	}
+
 	return err
 }
