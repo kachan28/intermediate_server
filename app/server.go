@@ -42,6 +42,7 @@ func (s *Server) registerRoutes(dsn, mainServerURL string) error {
 	s.e.POST("/api/backup/save", backupCtrl.Create)
 	s.e.GET("/api/backup/list/folders", backupCtrl.ListFolders)
 	s.e.GET("/api/backup/list/files", backupCtrl.ListBackups)
+	s.e.GET("/api/backup/list/local", backupCtrl.ListLocal)
 	s.e.POST("/api/backup/delete/remote/folder", backupCtrl.DeleteFolderOnMainServer)
 	s.e.POST("/api/backup/delete/remote/file", backupCtrl.DeleteFileOnMainServer)
 	return nil

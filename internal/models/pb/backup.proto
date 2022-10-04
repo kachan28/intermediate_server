@@ -11,6 +11,6 @@ message File {
 }
 
 message BackupCreate {
-    string id = 1 [(go.field).tags = 'validate:"required"'];
+    string system_id = 1 [(go.field).tags = 'validate:"required"'];
     File file = 2 [(go.field).tags = 'validate:"required"'];
 }
